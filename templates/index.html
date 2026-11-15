@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% set icons = {'Food':'🍕','Travel':'🚌','Shopping':'🛍️','Bills':'🧾','Entertainment':'🎮','Other':'✨'} %}
+{% block content %}
+<div class="card">
+  <h1>Your money, <span class="grad">your vibe.</span></h1>
+  <div class="stats">
+    <div class="stat">Total spent<b class="grad">₹{{ '%.2f'|format(total) }}</b></div>
+    <div class="stat">Transactions<b>{{ expenses|length }}</b></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>➕ Add expense</h2>
+  <form class="inline" method="post" action="{{ url_for('add') }}">
+    <label>Title <input name="title" placeholder="chai &amp; samosa" required></label>
+    <label>Amount (₹) <input name="amount" type="number" step="0.01" min="0.01" required></label>
+    <label>Category
+      <select name="category">{% for c in categories %}<option value="{{ c }}">{{ icons[c] }} {{ c }}</option>{% endfor %}</select>
+    </label>
+    <label>Date <input name="spent_on" type="date" value="{{ today }}" required></label>
+    <button>Add</button>
+  </form>
+</div>
+
+<div class="card">
+  <form class="inline" method="get">
+    <label>Category
+      <select name="category">
+        <option value="">All</option>
+        {% for c in categories %}<option value="{{ c }}" {{ 'selected' if c == sel_category }}>{{ icons[c] }} {{ c }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Month <input type="month" name="month" value="{{ sel_month }}"></label>
+    <button>Filter</button>
+    <a class="btn ghost" href="{{ url_for('index') }}">Clear</a>
+  </form>
+</div>
+
+{% if summary %}
+<div class="card">
+  <h2>📊 Where it went</h2>
+  <div class="scroll"><table>{% for cat, amt in summary.items() %}
+    <tr><td>{{ icons[cat] }} {{ cat }}</td><td>₹{{ '%.2f'|format(amt) }}</td>
+        <td><div class="bar"><i style="width:{{ '%.0f'|format(amt / total * 100) }}%"></i></div></td>
+        <td>{{ '%.0f'|format(amt / total * 100) }}%</td></tr>
+  {% endfor %}</table></div>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>🧾 Expenses</h2>
+  {% if expenses %}
+  <div class="scroll"><table>
+    <tr><th>Date</th><th>Title</th><th>Category</th><th>Amount</th><th></th></tr>
+    {% for e in expenses %}
+    <tr>
+      <td class="muted">{{ e.spent_on }}</td><td>{{ e.title }}</td>
+      <td><span class="pill">{{ icons[e.category] }} {{ e.category }}</span></td><td>₹{{ '%.2f'|format(e.amount) }}</td>
+      <td style="white-space:nowrap">
+        <a class="btn ghost" href="{{ url_for('edit', expense_id=e.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('delete', expense_id=e.id) }}" style="display:inline" onsubmit="return confirm('Delete this expense?')">
+          <button class="danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table></div>
+  {% else %}<p class="muted">No expenses yet. Add your first one 👆</p>{% endif %}
+</div>
+{% endblock %}

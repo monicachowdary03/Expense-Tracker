@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>✏️ Edit expense</h2>
+  <form class="inline" method="post">
+    <label>Title <input name="title" value="{{ e.title }}" required></label>
+    <label>Amount (₹) <input name="amount" type="number" step="0.01" value="{{ e.amount }}" required></label>
+    <label>Category
+      <select name="category">{% for c in categories %}<option {{ 'selected' if c == e.category }}>{{ c }}</option>{% endfor %}</select>
+    </label>
+    <label>Date <input name="spent_on" type="date" value="{{ e.spent_on }}" required></label>
+    <button>Save</button>
+    <a class="btn danger" href="{{ url_for('index') }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}
